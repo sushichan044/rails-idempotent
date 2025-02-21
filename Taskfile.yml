@@ -26,6 +26,11 @@ tasks:
     cmd: |
       bin/rails rbs:setup
 
+  test:
+    desc: Run RSpec
+    cmds:
+      - bin/rspec {{.CLI_ARGS}}
+
   default:
     desc: ヘルプを表示する
     cmds:
