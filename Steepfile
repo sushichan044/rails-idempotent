@@ -8,6 +8,7 @@ target :lib do
 
   check 'lib' # Directory name
   check 'app/models/**/*.rb' # Glob
+  check 'app/controllers/**/*.rb' # Glob
   # ignore "lib/templates/*.rb"
 
   # library "pathname"              # Standard libraries
