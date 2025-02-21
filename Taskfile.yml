@@ -1,0 +1,12 @@
+version: '3'
+
+tasks:
+  typegen:
+    desc: Generate RBS files
+    cmd: |
+      bin/rails rbs:setup
+
+  default:
+    desc: ヘルプを表示する
+    cmds:
+      - task --list-all
