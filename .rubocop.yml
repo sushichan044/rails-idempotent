@@ -22,3 +22,6 @@ AllCops:
 
 Style/Documentation:
   Enabled: false
+
+Layout/LeadingCommentSpace:
+  AllowRBSInlineAnnotation: true

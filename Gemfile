@@ -51,8 +51,10 @@ group :development, :test do
 end
 
 group :development do
-  # Use console on exceptions pages [https://github.com/rails/web-console]
+  gem 'rbs-inline', '~> 0.10.0', require: false
+  gem 'rbs_rails', require: false
   gem 'ruby-lsp-rspec', require: false
+  gem 'steep', require: false
   gem 'web-console'
 end
 

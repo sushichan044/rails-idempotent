@@ -1,0 +1,141 @@
+{
+	"Magic comment": {
+		"scope": "ruby",
+		"prefix": "rbs_inline: enabled",
+		"body": [
+			"rbs_inline: enabled"
+		],
+		"description": "Enable RBS::Inline"
+	},
+	"Method parameter type": {
+		"scope": "ruby",
+		"prefix": "@rbs {variable}: {T}",
+		"body": [
+			"@rbs ${1:variable}: ${2:type}"
+		],
+		"description": "Type of method parameter"
+	},
+	"Method return type": {
+		"scope": "ruby",
+		"prefix": "@rbs return: {T}",
+		"body": [
+			"@rbs return: ${1:type}"
+		],
+		"description": "Return type of a method"
+	},
+	"Block type": {
+		"scope": "ruby",
+		"prefix": "@rbs &{block}: () -> T",
+		"body": [
+			"@rbs &${1:block}: ${2:method-type}"
+		],
+		"description": "Type of a block parameter"
+	},
+	"Splat parameter type": {
+		"scope": "ruby",
+		"prefix": "@rbs *{args}: T",
+		"body": [
+			"@rbs *${1:args}: ${2:type}"
+		],
+		"description": "Type of a splat parameter"
+	},
+	"Double splat parameter type": {
+		"scope": "ruby",
+		"prefix": "@rbs **{opts}: T",
+		"body": [
+			"@rbs **${1:opts}: ${2:type}"
+		],
+		"description": "Type of a splat parameter"
+	},
+	"`use` directive": {
+		"scope": "ruby",
+		"prefix": "@rbs use {Clause}",
+		"body": [
+			"@rbs use ${1:clause}"
+		],
+		"description": "`use` directive"
+	},
+	"super_class": {
+		"scope": "ruby",
+		"prefix": "@rbs inherits {T}",
+		"body": [
+			"@rbs inherits ${1:super-class}"
+		],
+		"description": "Define super class of a class definition"
+	},
+	"module-self": {
+		"scope": "ruby",
+		"prefix": "@rbs module-self {T}",
+		"body": [
+			"@rbs module-self ${1:self-type}"
+		],
+		"description": "Define module-self constraint of a module definition"
+	},
+	"generics": {
+		"scope": "ruby",
+		"prefix": "@rbs generic {A}",
+		"body": [
+			"@rbs generic ${1:type parameter}"
+		],
+		"description": "Define generics type parameter of a class/module definition"
+	},
+	"ivar": {
+		"scope": "ruby",
+		"prefix": "@rbs @{instance_variable}: {type}",
+		"body": [
+			"@rbs @${1:x}: ${2:type}"
+		],
+		"description": "Define type of instance variables"
+	},
+	"selfivar": {
+		"scope": "ruby",
+		"prefix": "@rbs self.@{instance_variable}: {type}",
+		"body": [
+			"@rbs self.@${1:x}: ${2:type}"
+		],
+		"description": "Define type of instance variables"
+	},
+	"inline": {
+		"scope": "ruby",
+		"prefix": "@rbs!",
+		"body": [
+			"@rbs!",
+			"$LINE_COMMENT   "
+		],
+		"description": "Embed any RBS declarations"
+	},
+	"skip": {
+		"scope": "ruby",
+		"prefix": "@rbs skip",
+		"body": [
+			"@rbs skip"
+		],
+		"description": "Skip following definition"
+	},
+	"override": {
+		"scope": "ruby",
+		"prefix": "@rbs override",
+		"body": [
+			"@rbs override"
+		],
+		"description": "Override existing definition"
+	},
+	"annotation": {
+		"scope": "ruby",
+		"prefix": "@rbs %a{}",
+		"body": ["@rbs %a{${1}}"],
+		"description": "Insert RBS annotation"
+	},
+	"module-decl": {
+		"scope": "ruby",
+		"prefix": "@rbs module {M}",
+		"body": ["@rbs module ${1:module-name}"],
+		"description": "Module declaration"
+	},
+	"class-decl": {
+		"scope": "ruby",
+		"prefix": "@rbs class {C}",
+		"body": ["@rbs class ${1:module-name}"],
+		"description": "Class declaration"
+	}
+}
