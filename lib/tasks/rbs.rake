@@ -7,7 +7,7 @@ require 'rbs_rails/rake_task'
 RbsRails::RakeTask.new
 
 namespace :rbs do
-  task setup: %i[clean collection rbs_inline rbs_rails:all]
+  task setup: %i[clean collection rbs_inline eager_load_routes rbs_rails:all]
 
   desc 'Remove all RBS files'
   task clean: :environment do
@@ -25,6 +25,11 @@ namespace :rbs do
   desc 'Run rbs-inline to generate RBS files'
   task rbs_inline: :environment do
     sh 'rbs-inline --output app lib'
+  end
+
+  desc 'Eager load Rails routes, see: https://www.timedia.co.jp/tech/20241114-tech/'
+  task eager_load_routes: :environment do
+    Rails.application.reload_routes_unless_loaded
   end
 
   desc 'Validate RBS files'
