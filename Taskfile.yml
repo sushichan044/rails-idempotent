@@ -11,6 +11,11 @@ tasks:
     cmds:
       - bin/rails c
 
+  rails_g:
+    desc: Rails generate
+    cmd: |
+      bin/rails g {{.CLI_ARGS}}
+
   dev:
     desc: Start development server
     cmds:
