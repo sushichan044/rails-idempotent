@@ -25,3 +25,9 @@ Style/Documentation:
 
 Layout/LeadingCommentSpace:
   AllowRBSInlineAnnotation: true
+
+Metrics/MethodLength:
+  Max: 20
+
+Rspec/DescribedClass:
+  Enabled: false
