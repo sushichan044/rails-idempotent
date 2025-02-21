@@ -1,6 +1,21 @@
 version: '3'
 
 tasks:
+  rails:
+    desc: Rails command
+    cmd: |
+      bin/rails {{.CLI_ARGS}}
+
+  rails_c:
+    desc: Rails console
+    cmds:
+      - bin/rails c
+
+  dev:
+    desc: Start development server
+    cmds:
+      - bin/rails s
+
   typegen:
     desc: Generate RBS files
     cmd: |
