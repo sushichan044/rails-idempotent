@@ -48,6 +48,10 @@ group :development, :test do
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem 'brakeman', require: false
+
+  gem 'factory_bot_rails'
+  gem 'rspec'
+  gem 'rspec-rails'
 end
 
 group :development do
@@ -61,8 +65,7 @@ end
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem 'capybara'
-  gem 'rspec'
-  gem 'rspec-rails'
+
   gem 'selenium-webdriver'
 end
 

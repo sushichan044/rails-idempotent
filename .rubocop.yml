@@ -31,3 +31,6 @@ Metrics/MethodLength:
 
 Rspec/DescribedClass:
   Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: 20
