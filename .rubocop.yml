@@ -19,3 +19,6 @@ inherit_mode:
 AllCops:
   DisplayCopNames: true
   NewCops: disable
+
+Style/Documentation:
+  Enabled: false
