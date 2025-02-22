@@ -9,7 +9,7 @@ class UsersController < ApplicationController
     if user.save
       render json: { data: user, error: nil }, status: :created
     else
-      render json: { data: nil, error: user.errors }, status: :unprocessable_entity
+      render json: { data: nil, error: user.errors }, status: :unprocessable_content
     end
   end
 
@@ -30,7 +30,7 @@ class UsersController < ApplicationController
     if user.update(user_params)
       render json: { data: user, error: nil }, status: :ok
     else
-      render json: { data: nil, error: user.errors }, status: :unprocessable_entity
+      render json: { data: nil, error: user.errors }, status: :unprocessable_content
     end
   end
 
@@ -43,7 +43,7 @@ class UsersController < ApplicationController
     if user.destroy
       render json: { data: "User with id #{params[:id]} has been deleted", error: nil }, status: :ok
     else
-      render json: { data: nil, error: user.errors }, status: :unprocessable_entity
+      render json: { data: nil, error: user.errors }, status: :unprocessable_content
     end
   end
 

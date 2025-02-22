@@ -12,7 +12,7 @@ RSpec.describe 'Users', type: :request do
     it 'returns an unprocessable entity status with invalid name' do
       aggregate_failures do
         expect { post users_path, params: { user: { name: nil } } }.not_to change(User, :count)
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
   end
@@ -62,7 +62,7 @@ RSpec.describe 'Users', type: :request do
 
       aggregate_failures do
         expect { put user_path(user.id), params: params }.not_to(change { user.reload.name })
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
   end
