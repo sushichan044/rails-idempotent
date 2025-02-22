@@ -44,3 +44,5 @@
 
 # Taskfile
 .task/*
+
+.idea
