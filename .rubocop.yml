@@ -34,3 +34,6 @@ Rspec/DescribedClass:
 
 RSpec/ExampleLength:
   Enabled: 20
+
+Rspec/Focus:
+  AutoCorrect: false
