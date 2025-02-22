@@ -15,4 +15,5 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   resources :users, only: %i[create show update destroy]
+  resources :posts, only: %i[create show update destroy]
 end
