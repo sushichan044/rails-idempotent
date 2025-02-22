@@ -3,10 +3,24 @@
 # rbs_inline: enabled
 
 class IdempotencyKey < ApplicationRecord
-  # @rbs () { () -> void } -> void
-  def with_idempotent_lock(&_block)
-    idempotent_lock!
+  module Error
+    class AlreadyLocked < StandardError; end
+    class NotLocked < StandardError; end
+  end
 
+  class << self
+    # @rbs (ActionDispatch::Request) { () -> void } -> void
+    def with_request(request, &block)
+      idempotency_key = find_by(key: request.headers[:HTTP_IDEMPOTENCY_KEY])
+      return if idempotency_key.blank?
+
+      idempotency_key.with_idempotent_lock(&block)
+    end
+  end
+
+  # @rbs () { () -> void } -> void
+  def with_idempotent_lock
+    idempotent_lock!
     begin
       yield
     ensure
@@ -21,7 +35,7 @@ class IdempotencyKey < ApplicationRecord
 
   # @rbs () -> bool
   def locked?
-    locked_at.present? && locked_at > Time.current
+    locked_at.present?
   end
 
   private
@@ -29,19 +43,18 @@ class IdempotencyKey < ApplicationRecord
   # @rbs () -> void
   def idempotent_lock!
     with_lock do
-      raise 'Already locked' if locked?
+      raise Error::AlreadyLocked if locked?
 
-      self.locked_at = Time.current
+      update!(locked_at: Time.current)
     end
-    nil
   end
 
   # @rbs () -> void
   def idempotent_unlock!
     with_lock do
-      raise 'Not locked' unless locked?
+      raise Error::NotLocked unless locked?
 
-      self.locked_at = nil
+      update!(locked_at: nil)
     end
   end
 end
