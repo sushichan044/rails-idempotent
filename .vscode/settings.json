@@ -3,7 +3,8 @@
     "editor.defaultFormatter": "Shopify.ruby-lsp"
   },
   "rubyLsp.rubyVersionManager": {
-    "identifier": "mise"
+    "identifier": "custom"
   },
+  "rubyLsp.customRubyCommand": "eval \"$(mise env -s zsh)\"",
   "rubyLsp.formatter": "rubocop_internal"
 }
