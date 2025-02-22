@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_22_172748) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_22_173725) do
   create_table "idempotency_keys", force: :cascade do |t|
     t.string "key", null: false
     t.datetime "expired_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "locked_at"
   end
 
   create_table "posts", force: :cascade do |t|
