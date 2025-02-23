@@ -130,12 +130,20 @@ RSpec.describe IdempotencyKey, type: :model do
 
       it 'ブロックの実行前に必ずロックを取り、ブロックの実行後に必ずロックを解除すること' do
         aggregate_failures do
-          idempotency_key.with_idempotent_lock! do
-            expect(idempotency_key.reload.locked?).to be true
+          idempotency_key.with_idempotent_lock! do |current_key|
+            expect(current_key.locked?).to be true
           end
 
           expect(idempotency_key.locked?).to be false
         end
+      end
+
+      it 'ブロックの中でさらにロックを取ろうとすると AlreadyLocked が発生すること' do
+        expect do
+          idempotency_key.with_idempotent_lock! do |current_key|
+            current_key.with_idempotent_lock! { '2nd Lock' }
+          end
+        end.to raise_error(IdempotencyKey::Error::AlreadyLocked)
       end
 
       it 'ブロックの処理が異常終了しても必ずロックを解除すること' do
