@@ -40,6 +40,7 @@ class IdempotencyKey < ApplicationRecord
     end
   end
 
+  # Idempotency-Key に対応するリクエストが処理途中の場合のみ true を返す
   # @rbs () -> bool
   def locked?
     locked_at.present?
