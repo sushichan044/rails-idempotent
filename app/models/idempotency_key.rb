@@ -20,7 +20,7 @@ class IdempotencyKey < ApplicationRecord
   validates :request_path, presence: true, length: { maximum: 255 }
   validates :request_params, presence: true
 
-  scope :unexpired, -> { where(expired_at: [nil, Time.current..]) }
+  scope :unexpired, -> { where(expired: false) }
 
   # @rbs [T] () { () -> T } -> T
   def with_idempotent_lock!
@@ -32,11 +32,6 @@ class IdempotencyKey < ApplicationRecord
     ensure
       idempotent_unlock!
     end
-  end
-
-  # @rbs () -> bool
-  def expired?
-    expired_at.present? && (expired_at < Time.current)
   end
 
   # @rbs () -> bool

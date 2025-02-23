@@ -51,18 +51,6 @@ RSpec.describe IdempotencyKey, type: :model do
     end
   end
 
-  describe '#expired?' do
-    it 'returns true if expired' do
-      idempotency_key.update(expired_at: 1.day.ago)
-      expect(idempotency_key.expired?).to be true
-    end
-
-    it 'returns false if not expired' do
-      idempotency_key.update(expired_at: 1.day.from_now)
-      expect(idempotency_key.expired?).to be false
-    end
-  end
-
   describe '#locked?' do
     it 'returns true if locked' do
       idempotency_key.update(locked_at: Time.current)
