@@ -5,20 +5,20 @@ RSpec.describe IdempotencyKey, type: :model do
 
   describe '#with_idempotent_lock' do
     it 'executes the block within the lock' do
-      expect { |b| idempotency_key.with_idempotent_lock(&b) }.to yield_control
+      expect { |b| idempotency_key.with_idempotent_lock!(&b) }.to yield_control
     end
 
     it 'raises an error if already locked' do
       idempotency_key.update(locked_at: Time.current)
 
       expect do
-        idempotency_key.with_idempotent_lock
+        idempotency_key.with_idempotent_lock!
       end.to raise_error(IdempotencyKey::Error::AlreadyLocked)
     end
 
     it 'must lock before execution and unlock after execution' do
       aggregate_failures do
-        idempotency_key.with_idempotent_lock do
+        idempotency_key.with_idempotent_lock! do
           expect(idempotency_key.locked?).to be true
         end
 
@@ -29,7 +29,7 @@ RSpec.describe IdempotencyKey, type: :model do
     it 'must unlock when an exception is raised in the block' do
       aggregate_failures do
         expect do
-          idempotency_key.with_idempotent_lock { raise 'Error' }
+          idempotency_key.with_idempotent_lock! { raise 'Error' }
         end.to raise_error('Error')
 
         expect(idempotency_key.locked?).to be false

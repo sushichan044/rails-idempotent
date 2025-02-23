@@ -19,7 +19,7 @@ class IdempotencyKey < ApplicationRecord
   end
 
   # @rbs () { () -> void } -> void
-  def with_idempotent_lock
+  def with_idempotent_lock!
     idempotent_lock!
     begin
       yield
