@@ -12,7 +12,7 @@ module IdempotentRequest
     # @rbs params: ActiveSupport::HashWithIndifferentAccess
     # @rbs &block: (IdempotencyKey) -> void
     # @rbs return: { body: String, status: Integer, headers: Hash }
-    def with_idempotent_request(key:, method:, path:, params:, &block) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    def with_idempotent_request!(key:, method:, path:, params:, &block) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       raise IdempotentRequest::IdempotencyError::InvalidKey unless valid_key?(key)
 
       alive_key = IdempotencyKey.find_alive_by_request(idempotency_key: key, method: method, path: path)

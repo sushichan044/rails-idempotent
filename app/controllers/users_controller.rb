@@ -10,7 +10,7 @@ class UsersController < ApplicationController
     render json: { data: nil, error: user.errors }, status: :unprocessable_content and return unless user.valid?
 
     begin
-      response = with_idempotent_request(
+      response = with_idempotent_request!(
         key: extract_idempotency_key, method: request.request_method, path: request.path,
         params: params.to_unsafe_h
       ) do |key|
