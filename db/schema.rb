@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_23_124628) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_23_095514) do
   create_table "idempotency_keys", force: :cascade do |t|
     t.string "key", null: false
     t.datetime "expired_at"
@@ -20,7 +20,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_23_124628) do
     t.string "request_method", null: false
     t.string "request_path", null: false
     t.json "request_params", null: false
-    t.index ["key", "request_method", "request_path"], name: "idx_on_key_request_method_request_path_ec4b2f3235", unique: true, where: "expired_at IS NULL OR expired_at > date('now')"
   end
 
   create_table "posts", force: :cascade do |t|
