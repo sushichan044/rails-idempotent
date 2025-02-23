@@ -22,7 +22,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_23_145758) do
     t.integer "response_code", default: 0, null: false
     t.string "response_body", default: "", null: false
     t.json "response_headers"
-    t.index ["key", "request_method", "request_path"], name: "index_idempotency_keys_on_request_unique_identifier"
+    t.index ["key", "request_path", "request_method"], name: "index_idempotency_keys_on_request_unique_identifier"
   end
 
   create_table "posts", force: :cascade do |t|
