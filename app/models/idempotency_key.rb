@@ -29,6 +29,7 @@ class IdempotencyKey < ApplicationRecord
   end
 
   # @rbs [T] () { (IdempotencyKey) -> T } -> T
+  #    | () -> void
   def with_idempotent_lock!
     return unless block_given?
 
