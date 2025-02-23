@@ -24,7 +24,7 @@ tasks:
   typegen:
     desc: Generate RBS files
     cmd: |
-      bin/rails rbs:setup
+      bin/rails rbs:typegen
 
   test:
     desc: Run RSpec

@@ -7,7 +7,7 @@ require 'rbs_rails/rake_task'
 RbsRails::RakeTask.new
 
 namespace :rbs do
-  task setup: %i[clean collection rbs_inline eager_load_routes rbs_rails:all]
+  task typegen: %i[clean collection rbs_inline eager_load_routes rbs_rails:all]
 
   desc 'Remove all RBS files'
   task clean: :environment do
