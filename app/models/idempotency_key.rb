@@ -16,9 +16,9 @@ class IdempotencyKey < ApplicationRecord
                   },
                   on: :create
 
-      idempotency_key.with_idempotent_lock(&block)
-    end
-  end
+  validates :request_method, presence: true, length: { maximum: 10 }
+  validates :request_path, presence: true, length: { maximum: 255 }
+  validates :request_params, presence: true
 
   # @rbs [T] () { () -> T } -> T
   def with_idempotent_lock!
