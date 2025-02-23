@@ -8,6 +8,7 @@ class IdempotencyKey < ApplicationRecord
     class NotLocked < StandardError; end
   end
 
+  # 24時間ちょうどまでは保存されたレスポンスが有効。1 秒でも過ぎたら無効
   EXPIRES_IN = 24.hours #: ActiveSupport::Duration
 
   validates :key, presence: true, uuid: { version: 4 }
@@ -49,6 +50,19 @@ class IdempotencyKey < ApplicationRecord
     request_method != method ||
       request_path != path ||
       request_params != params.to_h
+  end
+
+  # IdempotencyKey が有効期限内であるか
+  # @rbs () -> bool
+  def alive?
+    updated_at >= EXPIRES_IN.ago
+  end
+
+  # IdempotencyKey に紐ついたリクエストの処理が完了しレスポンスが利用可能か
+  # @rbs () -> bool
+  def completed?
+    # response_header は nil 許容
+    response_body.present? && response_code != 0
   end
 
   private
