@@ -11,7 +11,7 @@ class IdempotencyKey < ApplicationRecord
   EXPIRES_IN = 24.hours #: ActiveSupport::Duration
 
   validates :key, presence: true, uuid: { version: 4 }
-  validate :validate_key_uniqueness_in_resumable
+  validate :validate_key_uniqueness_in_alive_with_same_request, on: :create
 
   validates :request_method, presence: true, length: { maximum: 10 }
   validates :request_path, presence: true, length: { maximum: 255 }
@@ -71,10 +71,8 @@ class IdempotencyKey < ApplicationRecord
     end
   end
 
-  # () -> void
-  def validate_key_uniqueness_in_resumable
-    return unless resumable?
-
+  # @rbs () -> void
+  def validate_key_uniqueness_in_alive_with_same_request
     # 過去 24 時間以内に作成 / 更新されている場合は、同じ key / method / path のリクエストを新規に受け付けない
     return unless self.class.where(key: key, request_method: request_method, request_path: request_path).alive.exists?
 
