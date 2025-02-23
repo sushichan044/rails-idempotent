@@ -18,8 +18,10 @@ class IdempotencyKey < ApplicationRecord
     end
   end
 
-  # @rbs () { () -> void } -> void
+  # @rbs [T] () { () -> T } -> T
   def with_idempotent_lock!
+    return unless block_given?
+
     idempotent_lock!
     begin
       yield
