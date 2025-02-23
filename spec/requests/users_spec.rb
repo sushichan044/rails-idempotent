@@ -2,16 +2,20 @@
 
 RSpec.describe 'Users', type: :request do
   describe 'POST /users' do
+    let(:headers) { { "Idempotency-Key": SecureRandom.uuid_v4 } }
+
     it 'creates a new User and returns it with valid parameters' do
       aggregate_failures do
-        expect { post users_path, params: { user: { name: 'John Doe' } } }.to change(User, :count).by(1)
+        expect do
+          post users_path, params: { user: { name: 'John Doe' } }, headers: headers
+        end.to change(User, :count).by(1)
         expect(response.parsed_body['data']).to eq User.last.as_json
       end
     end
 
     it 'returns an unprocessable entity status with invalid name' do
       aggregate_failures do
-        expect { post users_path, params: { user: { name: nil } } }.not_to change(User, :count)
+        expect { post users_path, params: { user: { name: nil } }, headers: headers }.not_to change(User, :count)
         expect(response).to have_http_status(:unprocessable_content)
       end
     end

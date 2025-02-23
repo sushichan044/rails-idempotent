@@ -3,14 +3,37 @@
 # rbs_inline: enabled
 
 class UsersController < ApplicationController
-  def create
-    user = User.new(user_params)
+  include IdempotentRequest
 
-    if user.save
-      render json: { data: user, error: nil }, status: :created
-    else
-      render json: { data: nil, error: user.errors }, status: :unprocessable_content
+  def create # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    user = User.new(user_params)
+    render json: { data: nil, error: user.errors }, status: :unprocessable_content and return unless user.valid?
+
+    begin
+      response = with_idempotent_request(
+        key: extract_idempotency_key, method: request.request_method, path: request.path,
+        params: params.to_unsafe_h
+      ) do |key|
+        user.save!
+        key.update!(
+          response_body: user.as_json.to_json,
+          response_code: 201
+        )
+      end
+    rescue IdempotencyError::InvalidKey
+      render json: { data: nil, error: 'Idempotency-Key is invalid' }, status: :bad_request
+      return
+    rescue IdempotencyError::RequestMismatch
+      Rails.logger.info('Request mismatch')
+      render json: { data: nil, error: 'Idempotency-Key is already used' }, status: :unprocessable_content
+      return
+    rescue IdempotencyError::KeyConflict
+      render json: { data: nil, error: 'A request is outstanding for this Idempotency-Key' }, status: :conflict
+      return
     end
+
+    render json: { data: JSON.parse(response[:body]), error: nil }, status: response[:status],
+           headers: response[:headers]
   end
 
   def show
@@ -52,5 +75,10 @@ class UsersController < ApplicationController
   # @rbs () -> { name: String? }
   def user_params
     params.expect(user: [:name])
+  end
+
+  # @rbs () -> String?
+  def extract_idempotency_key
+    request.headers['HTTP_IDEMPOTENCY_KEY']
   end
 end
