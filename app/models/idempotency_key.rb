@@ -20,7 +20,7 @@ class IdempotencyKey < ApplicationRecord
   validates :request_path, presence: true, length: { maximum: 255 }
   validates :request_params, presence: true
 
-  scope :unexpired, -> { where(expired: false) }
+  scope :unexpired, -> {}
 
   # @rbs [T] () { () -> T } -> T
   def with_idempotent_lock!

@@ -19,11 +19,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_23_140614) do
     t.string "request_method", null: false
     t.string "request_path", null: false
     t.json "request_params", null: false
-    t.boolean "expired", default: false, null: false
     t.integer "response_code"
     t.string "response_body"
     t.json "response_headers"
-    t.index ["key", "request_method", "request_path"], name: "idx_on_key_request_method_request_path_ec4b2f3235", unique: true, where: "expired = false"
   end
 
   create_table "posts", force: :cascade do |t|
