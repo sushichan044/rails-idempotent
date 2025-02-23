@@ -20,7 +20,7 @@ module IdempotentRequest
       if alive_key && !alive_key.request_match?(method: method, path: path, params: params)
         raise IdempotentRequest::IdempotencyError::RequestMismatch
       end
-      raise IdempotentRequest::IdempotencyError::KeyConflict if alive_key&.locked?
+      raise IdempotentRequest::IdempotencyError::KeyLocked if alive_key&.locked?
 
       if alive_key&.completed?
         Rails.logger.info("Request with Idempotency-Key #{key} is already completed. Returning the cached response.")
@@ -52,7 +52,7 @@ module IdempotentRequest
     # 422 Unprocessable Content
     class RequestMismatch < StandardError; end
     # 409 Conflict
-    class KeyConflict < StandardError; end
+    class KeyLocked < StandardError; end
   end
 
   private

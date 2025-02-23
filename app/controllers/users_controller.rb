@@ -27,7 +27,7 @@ class UsersController < ApplicationController
       Rails.logger.info('Request mismatch')
       render json: { data: nil, error: 'Idempotency-Key is already used' }, status: :unprocessable_content
       return
-    rescue IdempotencyError::KeyConflict
+    rescue IdempotencyError::KeyLocked
       render json: { data: nil, error: 'A request is outstanding for this Idempotency-Key' }, status: :conflict
       return
     end
