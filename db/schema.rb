@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_23_141208) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_23_142002) do
   create_table "idempotency_keys", force: :cascade do |t|
     t.string "key", null: false
     t.datetime "created_at", null: false
@@ -19,8 +19,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_23_141208) do
     t.string "request_method", default: "", null: false
     t.string "request_path", default: "", null: false
     t.json "request_params", default: {}, null: false
-    t.integer "response_code"
-    t.string "response_body"
+    t.integer "response_code", default: 0, null: false
+    t.string "response_body", default: "", null: false
     t.json "response_headers"
   end
 
