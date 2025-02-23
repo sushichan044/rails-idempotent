@@ -8,11 +8,13 @@ class IdempotencyKey < ApplicationRecord
     class NotLocked < StandardError; end
   end
 
-  class << self
-    # @rbs (ActionDispatch::Request) { () -> void } -> void
-    def with_request(request, &block)
-      idempotency_key = find_by(key: request.headers[:HTTP_IDEMPOTENCY_KEY])
-      return if idempotency_key.blank?
+  validates :key, presence: true, uuid: { version: 4 }
+  validates :key, uniqueness: {
+                    scope: %i[request_method request_path],
+                    # Only unique in unexpired
+                    conditions: -> { where(expired_at: [nil, Time.current..]) }
+                  },
+                  on: :create
 
       idempotency_key.with_idempotent_lock(&block)
     end
@@ -32,7 +34,7 @@ class IdempotencyKey < ApplicationRecord
 
   # @rbs () -> bool
   def expired?
-    expired_at.present? && expired_at < Time.current
+    expired_at.present? && (expired_at < Time.current)
   end
 
   # @rbs () -> bool
