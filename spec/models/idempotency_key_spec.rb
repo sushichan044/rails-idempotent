@@ -110,6 +110,12 @@ RSpec.describe IdempotencyKey, type: :model do
       expect(result).to eq 'result'
     end
 
+    it 'ブロックには IdempotencyKey インスタンスが渡されること' do
+      idempotency_key.with_idempotent_lock! do |key|
+        expect(key).to eq idempotency_key
+      end
+    end
+
     describe 'ロックの挙動' do
       it 'ブロックが渡されなかった場合はロックに関する操作をまったく行わないこと' do
         allow(idempotency_key).to receive(:idempotent_lock!)
