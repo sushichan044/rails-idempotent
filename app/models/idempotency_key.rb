@@ -12,13 +12,15 @@ class IdempotencyKey < ApplicationRecord
   validates :key, uniqueness: {
                     scope: %i[request_method request_path],
                     # Only unique in unexpired
-                    conditions: -> { where(expired_at: [nil, Time.current..]) }
+                    conditions: -> { unexpired }
                   },
                   on: :create
 
   validates :request_method, presence: true, length: { maximum: 10 }
   validates :request_path, presence: true, length: { maximum: 255 }
   validates :request_params, presence: true
+
+  scope :unexpired, -> { where(expired_at: [nil, Time.current..]) }
 
   # @rbs [T] () { () -> T } -> T
   def with_idempotent_lock!
@@ -40,6 +42,13 @@ class IdempotencyKey < ApplicationRecord
   # @rbs () -> bool
   def locked?
     locked_at.present?
+  end
+
+  # @rbs (method: String, path: String, params: ActiveSupport::HashWithIndifferentAccess) -> bool
+  def request_mismatch?(method:, path:, params:)
+    request_method != method ||
+      request_path != path ||
+      request_params != params.to_h
   end
 
   private
