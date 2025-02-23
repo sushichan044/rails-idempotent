@@ -2,15 +2,15 @@
 
 RSpec.describe IdempotencyKey, type: :model do
   describe '有効期限内の同一リクエストに対する uniqueness' do
-    subject(:idempotency_key) do
+    subject do
       IdempotencyKey.new(key: uuid, request_method: request_method, request_path: request_path,
                          request_params: request_params)
     end
 
-    let(:uuid) { '3f47bbb2-aaa4-472d-be4a-7a555787a204' }
-    let(:request_method) { 'POST' }
-    let(:request_path) { '/graphql' }
-    let(:request_params) { { foo: 'bar' } }
+    let!(:uuid) { '3f47bbb2-aaa4-472d-be4a-7a555787a204' }
+    let!(:request_method) { 'POST' }
+    let!(:request_path) { '/graphql' }
+    let!(:request_params) { { foo: 'bar' } }
 
     context '同一リクエストが存在しない場合' do
       it { is_expected.to be_valid }
@@ -103,7 +103,7 @@ RSpec.describe IdempotencyKey, type: :model do
   end
 
   describe '#with_idempotent_lock' do
-    let(:idempotency_key) { create(:idempotency_key) }
+    let!(:idempotency_key) { create(:idempotency_key) }
 
     it 'ブロックを実行しブロックの戻り値を最終的な戻り値とすること' do
       result = idempotency_key.with_idempotent_lock! { 'result' }
