@@ -46,10 +46,10 @@ class IdempotencyKey < ApplicationRecord
   end
 
   # @rbs (method: String, path: String, params: ActiveSupport::HashWithIndifferentAccess) -> bool
-  def request_mismatch?(method:, path:, params:)
-    request_method != method ||
-      request_path != path ||
-      request_params != params.to_h
+  def request_match?(method:, path:, params:)
+    request_method == method &&
+      request_path == path &&
+      request_params == params.to_h
   end
 
   # IdempotencyKey が有効期限内であるか
