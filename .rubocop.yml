@@ -37,3 +37,6 @@ RSpec/ExampleLength:
 
 Rspec/Focus:
   AutoCorrect: false
+
+RSpec/ContextWording:
+    Enabled: false
