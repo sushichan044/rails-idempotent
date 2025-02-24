@@ -52,6 +52,35 @@ RSpec.describe 'IdempotentRequest', type: :request do
     end
   end
 
+  context '一度処理に失敗した Idempotency-Key を指定した場合' do
+    subject(:retried_request) do
+      post '/', params: request_params, headers: { 'Idempotency-Key' => idempotency_key_header }
+      { body: response.body, status: response.status }
+    end
+
+    let!(:idempotency_key_header) { SecureRandom.uuid_v4 }
+    let!(:request_params) { { user: { name: 'John Doe' } } }
+
+    before do
+      # 一度目のリクエストで DB への接続がタイムアウトし、ActiveRecord::ConnectionTimeoutError が発生したので Controller の処理が中断されているとする
+      post '/', params: request_params, headers: { 'Idempotency-Key' => idempotency_key_header }
+      # 擬似的に処理に失敗した状態を作る
+      # 処理に失敗して中断されたならレスポンス情報は格納されていない
+      IdempotencyKey.find_by!(key: idempotency_key_header).update!(response_body: '', response_code: 0)
+      # 処理に失敗しているなら User は作成されていない
+      User.last.destroy!
+    end
+
+    it '既存の Idempotency-Key に紐づくリクエストの処理を再開する' do
+      RSpec::Matchers.define_negated_matcher :not_change, :change
+
+      aggregate_failures do
+        expect { retried_request }.to not_change(IdempotencyKey, :count).and change(User, :count).from(0).to(1)
+        expect(retried_request[:status]).to eq(201)
+      end
+    end
+  end
+
   context '既に処理済みで有効期限が切れた Idempotency-Key を指定した場合' do
     subject(:first_request) do
       post '/', params: { user: { name: 'John Doe' } }, headers: { 'Idempotency-Key' => idempotency_key_header }
