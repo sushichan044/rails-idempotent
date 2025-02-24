@@ -36,7 +36,7 @@ module IdempotentRequest
         request_params: params
       )
       alive_key.with_idempotent_lock!(&block)
-      raise 'Response was not set in with_idempotent_lock!' unless alive_key.completed?
+      raise IdempotentRequest::IdempotencyError::ResponseNotSet unless alive_key.completed?
 
       ResponseObject.new(body: alive_key.response_body, status: alive_key.response_code,
                          headers: alive_key.response_headers)
@@ -50,6 +50,9 @@ module IdempotentRequest
     class RequestMismatch < StandardError; end
     # 409 Conflict
     class KeyLocked < StandardError; end
+
+    # 渡されたブロック内で complete_with_response! などを使ってレスポンス情報を格納していない場合に発生
+    class ResponseNotSet < StandardError; end
   end
 
   ResponseObject = Data.define(
