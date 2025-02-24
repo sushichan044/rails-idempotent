@@ -2,7 +2,7 @@
 
 # rbs_inline: enabled
 
-class IdempotencyKey < ApplicationRecord
+class IdempotentRequest < ApplicationRecord
   module Error
     class AlreadyLocked < StandardError; end
     class NotLocked < StandardError; end
@@ -21,14 +21,14 @@ class IdempotencyKey < ApplicationRecord
   scope :alive, -> { where(updated_at: EXPIRES_IN.ago..) }
 
   class << self
-    # @rbs (idempotency_key: String, method: String, path: String) -> IdempotencyKey?
+    # @rbs (idempotency_key: String, method: String, path: String) -> IdempotentRequest?
     def find_alive_by_request(idempotency_key:, method:, path:)
       # 2025.02.24 に実行計画を見た感じでは index_idempotency_keys_on_request_unique_identifier が効いていそう
       alive.find_by(key: idempotency_key, request_path: path, request_method: method)
     end
   end
 
-  # @rbs [T] () { (IdempotencyKey) -> T } -> T
+  # @rbs [T] () { (IdempotentRequest) -> T } -> T
   #    | () -> void
   def with_idempotent_lock!
     return unless block_given?
@@ -63,13 +63,13 @@ class IdempotencyKey < ApplicationRecord
       request_params == params.to_h
   end
 
-  # IdempotencyKey が有効期限内であるか
+  # IdempotentRequest が有効期限内であるか
   # @rbs () -> bool
   def alive?
     updated_at >= EXPIRES_IN.ago
   end
 
-  # IdempotencyKey に紐ついたリクエストの処理が完了しレスポンスが利用可能か
+  # IdempotentRequest に紐ついたリクエストの処理が完了しレスポンスが利用可能か
   # @rbs () -> bool
   def completed?
     # response_header は nil 許容

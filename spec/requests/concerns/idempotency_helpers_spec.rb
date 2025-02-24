@@ -49,7 +49,7 @@ RSpec.describe 'IdempotencyHelpers', type: :request do
       end
 
       it '新しいリクエストとして処理される' do
-        expect { first_request }.to change(IdempotencyKey, :count).from(0).to(1)
+        expect { first_request }.to change(IdempotentRequest, :count).from(0).to(1)
       end
     end
 
@@ -67,7 +67,7 @@ RSpec.describe 'IdempotencyHelpers', type: :request do
         post '/', params: request_params, headers: { 'Idempotency-Key' => idempotency_key_header }
         # 擬似的に処理に失敗した状態を作る
         # 処理に失敗して中断されたならレスポンス情報は格納されていない
-        IdempotencyKey.find_by!(key: idempotency_key_header).update!(response_body: '', response_code: 0)
+        IdempotentRequest.find_by!(key: idempotency_key_header).update!(response_body: '', response_code: 0)
         # 処理に失敗しているなら User は作成されていない
         User.last.destroy!
       end
@@ -76,7 +76,7 @@ RSpec.describe 'IdempotencyHelpers', type: :request do
         RSpec::Matchers.define_negated_matcher :not_change, :change
 
         aggregate_failures do
-          expect { retried_request }.to not_change(IdempotencyKey, :count).and change(User, :count).from(0).to(1)
+          expect { retried_request }.to not_change(IdempotentRequest, :count).and change(User, :count).from(0).to(1)
           expect(retried_request[:status]).to eq(201)
         end
       end
@@ -95,7 +95,7 @@ RSpec.describe 'IdempotencyHelpers', type: :request do
       end
 
       it '新しいリクエストとして処理される' do
-        expect { first_request }.to change(IdempotencyKey, :count).from(1).to(2)
+        expect { first_request }.to change(IdempotentRequest, :count).from(1).to(2)
       end
     end
 
@@ -115,7 +115,7 @@ RSpec.describe 'IdempotencyHelpers', type: :request do
       context 'リクエストパラメータが一致する場合' do # rubocop:disable RSpec/NestedGroups
         it '既存のレスポンスを返す' do
           aggregate_failures do
-            expect { second_response }.not_to change(IdempotencyKey, :count)
+            expect { second_response }.not_to change(IdempotentRequest, :count)
             expect(second_response[:body]).to eq(first_response[:body])
             expect(second_response[:status]).to eq(first_response[:status])
           end
@@ -133,8 +133,8 @@ RSpec.describe 'IdempotencyHelpers', type: :request do
       context '前のリクエストが処理中の場合' do # rubocop:disable RSpec/NestedGroups
         before do
           # 擬似的に処理中の状態を作る
-          IdempotencyKey.find_by(key: idempotency_key_header)
-                        .update!(locked_at: Time.current, response_code: 0, response_body: '')
+          IdempotentRequest.find_by(key: idempotency_key_header)
+                           .update!(locked_at: Time.current, response_code: 0, response_body: '')
         end
 
         it 'IdempotencyError::KeyLocked が発生する' do

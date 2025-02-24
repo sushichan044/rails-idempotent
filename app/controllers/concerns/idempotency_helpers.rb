@@ -10,12 +10,12 @@ module IdempotencyHelpers
     # @rbs method: String
     # @rbs path: String
     # @rbs params: ActiveSupport::HashWithIndifferentAccess
-    # @rbs &block: (IdempotencyKey) -> void
+    # @rbs &block: (IdempotentRequest) -> void
     # @rbs return: ResponseObject
     def ensure_request_idempotency!(key:, method:, path:, params:, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       raise IdempotencyHelpers::Errors::InvalidKey unless valid_key?(key)
 
-      alive_key = IdempotencyKey.find_alive_by_request(idempotency_key: key, method: method, path: path)
+      alive_key = IdempotentRequest.find_alive_by_request(idempotency_key: key, method: method, path: path)
 
       if alive_key && !alive_key.request_match?(method: method, path: path, params: params)
         raise IdempotencyHelpers::Errors::RequestMismatch
@@ -29,7 +29,7 @@ module IdempotencyHelpers
 
       # このとき、一度リクエストを処理しようとしたが失敗して response を保存できていない場合は
       # alive_key が存在するので、その alive_key を使って再試行するようにする
-      alive_key ||= IdempotencyKey.create!(
+      alive_key ||= IdempotentRequest.create!(
         key: key,
         request_method: method,
         request_path: path,

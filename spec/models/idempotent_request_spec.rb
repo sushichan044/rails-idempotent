@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-RSpec.describe IdempotencyKey, type: :model do
+RSpec.describe IdempotentRequest, type: :model do
   describe '有効期限内の同一リクエストに対する uniqueness' do
     subject do
-      IdempotencyKey.new(key: uuid, request_method: request_method, request_path: request_path,
-                         request_params: request_params)
+      IdempotentRequest.new(key: uuid, request_method: request_method, request_path: request_path,
+                            request_params: request_params)
     end
 
     let!(:uuid) { '3f47bbb2-aaa4-472d-be4a-7a555787a204' }
@@ -18,7 +18,7 @@ RSpec.describe IdempotencyKey, type: :model do
 
     context '同一リクエストが存在する場合' do
       before do
-        create(:idempotency_key, key: uuid, request_method: request_method, request_path: request_path)
+        create(:idempotent_request, key: uuid, request_method: request_method, request_path: request_path)
       end
 
       it { is_expected.to be_invalid }
@@ -26,7 +26,7 @@ RSpec.describe IdempotencyKey, type: :model do
 
     context '同一リクエストが存在し、現在時刻が有効な境界値の場合' do
       before do
-        create(:idempotency_key, key: uuid, request_method: request_method, request_path: request_path)
+        create(:idempotent_request, key: uuid, request_method: request_method, request_path: request_path)
         travel_to(24.hours.from_now)
       end
 
@@ -35,7 +35,7 @@ RSpec.describe IdempotencyKey, type: :model do
 
     context '同一リクエストが存在しても有効期限が切れている場合' do
       before do
-        create(:idempotency_key, key: uuid, request_method: request_method, request_path: request_path)
+        create(:idempotent_request, key: uuid, request_method: request_method, request_path: request_path)
         travel_to((24.hours + 1.second).from_now)
       end
 
@@ -44,7 +44,7 @@ RSpec.describe IdempotencyKey, type: :model do
   end
 
   describe 'alive? と alive scope の挙動およびその一貫性' do
-    let!(:idempotency_key) { create(:idempotency_key) }
+    let!(:idempotency_key) { create(:idempotent_request) }
 
     context '有効期限内の場合' do
       it 'alive? は true を返すこと' do
@@ -52,7 +52,7 @@ RSpec.describe IdempotencyKey, type: :model do
       end
 
       it 'alive scope に含まれること' do
-        expect(IdempotencyKey.alive).to include idempotency_key
+        expect(IdempotentRequest.alive).to include idempotency_key
       end
     end
 
@@ -64,7 +64,7 @@ RSpec.describe IdempotencyKey, type: :model do
       end
 
       it 'alive scope に含まれること' do
-        expect(IdempotencyKey.alive).to include idempotency_key
+        expect(IdempotentRequest.alive).to include idempotency_key
       end
     end
 
@@ -76,14 +76,14 @@ RSpec.describe IdempotencyKey, type: :model do
       end
 
       it 'alive scope に含まれないこと' do
-        expect(IdempotencyKey.alive).not_to include idempotency_key
+        expect(IdempotentRequest.alive).not_to include idempotency_key
       end
     end
   end
 
   describe 'find_alive_by_request' do
     subject(:found_key) do
-      IdempotencyKey.find_alive_by_request(idempotency_key: uuid, method: request_method, path: request_path)
+      IdempotentRequest.find_alive_by_request(idempotency_key: uuid, method: request_method, path: request_path)
     end
 
     let!(:uuid) { '3f47bbb2-aaa4-472d-be4a-7a555787a204' }
@@ -91,8 +91,8 @@ RSpec.describe IdempotencyKey, type: :model do
     let!(:request_path) { '/graphql' }
 
     let!(:existing_key) do
-      create(:idempotency_key, key: '3f47bbb2-aaa4-472d-be4a-7a555787a204', request_method: 'POST',
-                               request_path: '/graphql')
+      create(:idempotent_request, key: '3f47bbb2-aaa4-472d-be4a-7a555787a204', request_method: 'POST',
+                                  request_path: '/graphql')
     end
 
     context 'key, method, path が全て等しい場合' do
@@ -141,14 +141,14 @@ RSpec.describe IdempotencyKey, type: :model do
   end
 
   describe '#with_idempotent_lock!' do
-    let!(:idempotency_key) { create(:idempotency_key) }
+    let!(:idempotency_key) { create(:idempotent_request) }
 
     it 'ブロックを実行しブロックの戻り値を最終的な戻り値とすること' do
       result = idempotency_key.with_idempotent_lock! { 'result' }
       expect(result).to eq 'result'
     end
 
-    it 'ブロックには IdempotencyKey インスタンスが渡されること' do
+    it 'ブロックには IdempotentRequest インスタンスが渡されること' do
       idempotency_key.with_idempotent_lock! do |key|
         expect(key).to eq idempotency_key
       end
@@ -181,7 +181,7 @@ RSpec.describe IdempotencyKey, type: :model do
           idempotency_key.with_idempotent_lock! do |current_key|
             current_key.with_idempotent_lock! { '2nd Lock' }
           end
-        end.to raise_error(IdempotencyKey::Error::AlreadyLocked)
+        end.to raise_error(IdempotentRequest::Error::AlreadyLocked)
       end
 
       it 'ブロックの処理が異常終了しても必ずロックを解除すること' do
@@ -199,13 +199,13 @@ RSpec.describe IdempotencyKey, type: :model do
 
         expect do
           idempotency_key.with_idempotent_lock! { 'result' }
-        end.to raise_error(IdempotencyKey::Error::AlreadyLocked)
+        end.to raise_error(IdempotentRequest::Error::AlreadyLocked)
       end
     end
   end
 
   describe '#complete_with_response!' do
-    let!(:idempotency_key) { create(:idempotency_key) }
+    let!(:idempotency_key) { create(:idempotent_request) }
     let(:body) { 'result' }
     let(:status) { 200 }
     let(:headers) { { 'Content-Type' => 'application/json' } }
@@ -253,7 +253,7 @@ RSpec.describe IdempotencyKey, type: :model do
     let(:request_params) { ActionController::Parameters.new({ foo: 'bar' }) }
 
     let!(:idempotency_key) do
-      create(:idempotency_key, request_path: '/graphql', request_method: 'POST', request_params: { foo: 'bar' })
+      create(:idempotent_request, request_path: '/graphql', request_method: 'POST', request_params: { foo: 'bar' })
     end
 
     context 'リクエストの情報が全て等しい場合' do
@@ -282,7 +282,7 @@ RSpec.describe IdempotencyKey, type: :model do
   describe '#locked?' do
     subject { idempotency_key.locked? }
 
-    let!(:idempotency_key) { create(:idempotency_key) }
+    let!(:idempotency_key) { create(:idempotent_request) }
 
     context 'ロックされている場合' do
       before { idempotency_key.update(locked_at: Time.current) }
@@ -300,7 +300,7 @@ RSpec.describe IdempotencyKey, type: :model do
   describe  '#completed?' do
     subject { idempotency_key.completed? }
 
-    let!(:idempotency_key) { create(:idempotency_key) }
+    let!(:idempotency_key) { create(:idempotent_request) }
     let(:response_body) { '' }
     let(:response_code) { 0 }
     let(:response_headers) { {} }
