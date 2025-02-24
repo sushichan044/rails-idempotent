@@ -102,7 +102,7 @@ RSpec.describe IdempotencyKey, type: :model do
     end
   end
 
-  describe '#with_idempotent_lock' do
+  describe '#with_idempotent_lock!' do
     let!(:idempotency_key) { create(:idempotency_key) }
 
     it 'ブロックを実行しブロックの戻り値を最終的な戻り値とすること' do
