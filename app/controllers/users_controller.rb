@@ -13,17 +13,17 @@ class UsersController < ApplicationController
       response = ensure_request_idempotency!(
         key: extract_idempotency_key, method: request.request_method, path: request.path,
         params: params.to_unsafe_h
-      ) do |key|
+      ) do |req|
         user.save!
-        key.complete_with_response!(body: user.to_json, status: 201)
+        req.complete_with_response!(body: user.to_json, status: 201)
       end
-    rescue Errors::InvalidKey
+    rescue IdempotencyHelpers::Errors::InvalidKey
       render json: { data: nil, error: 'Idempotency-Key is invalid' }, status: :bad_request
       return
-    rescue Errors::RequestMismatch
+    rescue IdempotencyHelpers::Errors::RequestMismatch
       render json: { data: nil, error: 'Idempotency-Key is already used' }, status: :unprocessable_content
       return
-    rescue Errors::KeyLocked
+    rescue IdempotencyHelpers::Errors::KeyLocked
       render json: { data: nil, error: 'A request is outstanding for this Idempotency-Key' }, status: :conflict
       return
     end

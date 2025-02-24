@@ -243,9 +243,9 @@ RSpec.describe IdempotentRequest, type: :model do
     end
   end
 
-  describe '#request_match?' do
+  describe '#same_payload?' do
     subject do
-      idempotency_key.request_match?(method: request_method, path: request_path, params: request_params.to_unsafe_h)
+      idempotency_key.same_payload?(method: request_method, path: request_path, params: request_params.to_unsafe_h)
     end
 
     let(:request_method) { 'POST' }

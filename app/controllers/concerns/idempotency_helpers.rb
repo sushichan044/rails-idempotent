@@ -15,31 +15,31 @@ module IdempotencyHelpers
     def ensure_request_idempotency!(key:, method:, path:, params:, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       raise IdempotencyHelpers::Errors::InvalidKey unless valid_key?(key)
 
-      alive_key = IdempotentRequest.find_alive_by_request(idempotency_key: key, method: method, path: path)
+      request = IdempotentRequest.find_alive_by_request(idempotency_key: key, method: method, path: path)
 
-      if alive_key && !alive_key.request_match?(method: method, path: path, params: params)
+      if request && !request.same_payload?(method: method, path: path, params: params)
         raise IdempotencyHelpers::Errors::RequestMismatch
       end
-      raise IdempotencyHelpers::Errors::KeyLocked if alive_key&.locked?
+      raise IdempotencyHelpers::Errors::KeyLocked if request&.locked?
 
-      if alive_key&.completed?
-        return ResponseObject.new(body: alive_key.response_body, status: alive_key.response_code,
-                                  headers: alive_key.response_headers)
+      if request&.completed?
+        return ResponseObject.new(body: request.response_body, status: request.response_code,
+                                  headers: request.response_headers)
       end
 
       # このとき、一度リクエストを処理しようとしたが失敗して response を保存できていない場合は
       # alive_key が存在するので、その alive_key を使って再試行するようにする
-      alive_key ||= IdempotentRequest.create!(
+      request ||= IdempotentRequest.create!(
         key: key,
         request_method: method,
         request_path: path,
         request_params: params
       )
-      alive_key.with_idempotent_lock!(&block)
-      raise IdempotencyHelpers::Errors::ResponseNotSet unless alive_key.completed?
+      request.with_idempotent_lock!(&block)
+      raise IdempotencyHelpers::Errors::ResponseNotSet unless request.completed?
 
-      ResponseObject.new(body: alive_key.response_body, status: alive_key.response_code,
-                         headers: alive_key.response_headers)
+      ResponseObject.new(body: request.response_body, status: request.response_code,
+                         headers: request.response_headers)
     end
   end
 

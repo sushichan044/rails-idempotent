@@ -57,7 +57,7 @@ class IdempotentRequest < ApplicationRecord
   end
 
   # @rbs (method: String, path: String, params: ActiveSupport::HashWithIndifferentAccess) -> bool
-  def request_match?(method:, path:, params:)
+  def same_payload?(method:, path:, params:)
     request_method == method &&
       request_path == path &&
       request_params == params.to_h
