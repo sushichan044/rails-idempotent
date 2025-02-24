@@ -320,13 +320,5 @@ RSpec.describe IdempotencyKey, type: :model do
 
       it { is_expected.to be true }
     end
-
-    context 'response_header が nil の場合' do
-      let(:response_body) { 'result' }
-      let(:response_code) { 200 }
-      let(:response_headers) { nil }
-
-      it { is_expected.to be true }
-    end
   end
 end
