@@ -3,27 +3,27 @@
 # rbs_inline: enabled
 
 class UsersController < ApplicationController
-  include IdempotentRequest
+  include IdempotencyHelpers
 
   def create # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     user = User.new(user_params)
     render json: { data: nil, error: user.errors }, status: :unprocessable_content and return unless user.valid?
 
     begin
-      response = with_idempotent_request!(
+      response = ensure_request_idempotency!(
         key: extract_idempotency_key, method: request.request_method, path: request.path,
         params: params.to_unsafe_h
       ) do |key|
         user.save!
         key.complete_with_response!(body: user.to_json, status: 201)
       end
-    rescue IdempotencyError::InvalidKey
+    rescue Errors::InvalidKey
       render json: { data: nil, error: 'Idempotency-Key is invalid' }, status: :bad_request
       return
-    rescue IdempotencyError::RequestMismatch
+    rescue Errors::RequestMismatch
       render json: { data: nil, error: 'Idempotency-Key is already used' }, status: :unprocessable_content
       return
-    rescue IdempotencyError::KeyLocked
+    rescue Errors::KeyLocked
       render json: { data: nil, error: 'A request is outstanding for this Idempotency-Key' }, status: :conflict
       return
     end

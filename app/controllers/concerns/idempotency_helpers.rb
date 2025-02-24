@@ -2,7 +2,7 @@
 
 # rbs_inline: enabled
 
-module IdempotentRequest
+module IdempotencyHelpers
   extend ActiveSupport::Concern
 
   included do
@@ -12,15 +12,15 @@ module IdempotentRequest
     # @rbs params: ActiveSupport::HashWithIndifferentAccess
     # @rbs &block: (IdempotencyKey) -> void
     # @rbs return: ResponseObject
-    def with_idempotent_request!(key:, method:, path:, params:, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-      raise IdempotentRequest::IdempotencyError::InvalidKey unless valid_key?(key)
+    def ensure_request_idempotency!(key:, method:, path:, params:, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      raise IdempotencyHelpers::Errors::InvalidKey unless valid_key?(key)
 
       alive_key = IdempotencyKey.find_alive_by_request(idempotency_key: key, method: method, path: path)
 
       if alive_key && !alive_key.request_match?(method: method, path: path, params: params)
-        raise IdempotentRequest::IdempotencyError::RequestMismatch
+        raise IdempotencyHelpers::Errors::RequestMismatch
       end
-      raise IdempotentRequest::IdempotencyError::KeyLocked if alive_key&.locked?
+      raise IdempotencyHelpers::Errors::KeyLocked if alive_key&.locked?
 
       if alive_key&.completed?
         return ResponseObject.new(body: alive_key.response_body, status: alive_key.response_code,
@@ -36,14 +36,14 @@ module IdempotentRequest
         request_params: params
       )
       alive_key.with_idempotent_lock!(&block)
-      raise IdempotentRequest::IdempotencyError::ResponseNotSet unless alive_key.completed?
+      raise IdempotencyHelpers::Errors::ResponseNotSet unless alive_key.completed?
 
       ResponseObject.new(body: alive_key.response_body, status: alive_key.response_code,
                          headers: alive_key.response_headers)
     end
   end
 
-  module IdempotencyError
+  module Errors
     # 400 Bad Request
     class InvalidKey < StandardError; end
     # 422 Unprocessable Content

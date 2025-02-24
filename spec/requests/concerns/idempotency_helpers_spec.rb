@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-RSpec.describe 'IdempotentRequest', type: :request do
+RSpec.describe 'IdempotencyHelpers', type: :request do
   describe 'リクエストの冪等性' do
     before do
       stub_const('MockController', Class.new(ApplicationController) do
-        include IdempotentRequest
+        include IdempotencyHelpers
 
         def create # rubocop:disable Metrics/AbcSize
           header_key = request.headers['HTTP_IDEMPOTENCY_KEY']
 
-          response = with_idempotent_request!(
+          response = ensure_request_idempotency!(
             key: header_key, method: request.request_method, path: request.path, params: params.to_unsafe_h
           ) do |key|
             user = User.create!(name: user_params)
@@ -39,7 +39,7 @@ RSpec.describe 'IdempotentRequest', type: :request do
       end
 
       it 'IdempotencyError::InvalidKey が発生する' do
-        expect { first_request }.to raise_error(IdempotentRequest::IdempotencyError::InvalidKey)
+        expect { first_request }.to raise_error(IdempotencyHelpers::Errors::InvalidKey)
       end
     end
 
@@ -126,7 +126,7 @@ RSpec.describe 'IdempotentRequest', type: :request do
         let(:request_params) { { user: { name: 'INVALID' } } }
 
         it 'IdempotencyError::RequestMismatch が発生する' do
-          expect { second_response }.to raise_error(IdempotentRequest::IdempotencyError::RequestMismatch)
+          expect { second_response }.to raise_error(IdempotencyHelpers::Errors::RequestMismatch)
         end
       end
 
@@ -138,7 +138,7 @@ RSpec.describe 'IdempotentRequest', type: :request do
         end
 
         it 'IdempotencyError::KeyLocked が発生する' do
-          expect { second_response }.to raise_error(IdempotentRequest::IdempotencyError::KeyLocked)
+          expect { second_response }.to raise_error(IdempotencyHelpers::Errors::KeyLocked)
         end
       end
     end
@@ -147,12 +147,12 @@ RSpec.describe 'IdempotentRequest', type: :request do
   describe '冪等処理のブロックの使い方' do
     before do
       stub_const('MockController', Class.new(ApplicationController) do
-        include IdempotentRequest
+        include IdempotencyHelpers
 
         def create # rubocop:disable Metrics/AbcSize
           header_key = request.headers['HTTP_IDEMPOTENCY_KEY']
 
-          response = with_idempotent_request!(
+          response = ensure_request_idempotency!(
             key: header_key, method: request.request_method, path: request.path, params: params.to_unsafe_h
           ) { User.create!(name: user_params) }
 
@@ -179,7 +179,7 @@ RSpec.describe 'IdempotentRequest', type: :request do
       end
 
       it 'IdempotencyError::ResponseNotSet が発生する' do
-        expect { request }.to raise_error(IdempotentRequest::IdempotencyError::ResponseNotSet)
+        expect { request }.to raise_error(IdempotencyHelpers::Errors::ResponseNotSet)
       end
     end
   end
