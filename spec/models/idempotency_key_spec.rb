@@ -43,6 +43,44 @@ RSpec.describe IdempotencyKey, type: :model do
     end
   end
 
+  describe 'alive? と alive scope の挙動およびその一貫性' do
+    let!(:idempotency_key) { create(:idempotency_key) }
+
+    context '有効期限内の場合' do
+      it 'alive? は true を返すこと' do
+        expect(idempotency_key).to be_alive
+      end
+
+      it 'alive scope に含まれること' do
+        expect(IdempotencyKey.alive).to include idempotency_key
+      end
+    end
+
+    context '有効な境界値の場合' do
+      before { travel_to(24.hours.from_now) }
+
+      it 'alive? は true を返すこと' do
+        expect(idempotency_key).to be_alive
+      end
+
+      it 'alive scope に含まれること' do
+        expect(IdempotencyKey.alive).to include idempotency_key
+      end
+    end
+
+    context '有効期限が切れている場合' do
+      before { travel_to((24.hours + 1.second).from_now) }
+
+      it 'alive? は false を返すこと' do
+        expect(idempotency_key).not_to be_alive
+      end
+
+      it 'alive scope に含まれないこと' do
+        expect(IdempotencyKey.alive).not_to include idempotency_key
+      end
+    end
+  end
+
   describe 'find_alive_by_request' do
     subject(:found_key) do
       IdempotencyKey.find_alive_by_request(idempotency_key: uuid, method: request_method, path: request_path)
@@ -254,28 +292,6 @@ RSpec.describe IdempotencyKey, type: :model do
 
     context 'ロックされていない場合' do
       before { idempotency_key.update(locked_at: nil) }
-
-      it { is_expected.to be false }
-    end
-  end
-
-  describe '#alive?' do
-    subject { idempotency_key.alive? }
-
-    let!(:idempotency_key) { create(:idempotency_key) }
-
-    context '有効期限内の場合' do
-      it { is_expected.to be true }
-    end
-
-    context '有効な境界値の場合' do
-      before { travel_to(24.hours.from_now) }
-
-      it { is_expected.to be true }
-    end
-
-    context '有効期限が切れている場合' do
-      before { travel_to((24.hours + 1.second).from_now) }
 
       it { is_expected.to be false }
     end
