@@ -22,7 +22,7 @@ module IdempotencyHelpers
       end
       raise IdempotencyHelpers::Errors::KeyLocked if request&.locked?
 
-      if request&.completed?
+      if request&.response_available?
         return ResponseObject.new(body: request.response_body, status: request.response_code,
                                   headers: request.response_headers)
       end
@@ -36,7 +36,7 @@ module IdempotencyHelpers
         request_params: params
       )
       request.with_idempotent_lock!(&block)
-      raise IdempotencyHelpers::Errors::ResponseNotSet unless request.completed?
+      raise IdempotencyHelpers::Errors::ResponseNotSet unless request.response_available?
 
       ResponseObject.new(body: request.response_body, status: request.response_code,
                          headers: request.response_headers)

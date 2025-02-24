@@ -71,7 +71,7 @@ class IdempotentRequest < ApplicationRecord
 
   # IdempotentRequest に紐ついたリクエストの処理が完了しレスポンスが利用可能か
   # @rbs () -> bool
-  def completed?
+  def response_available?
     # response_header は nil 許容
     response_body.present? && response_code != 0
   end

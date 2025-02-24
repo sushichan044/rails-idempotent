@@ -297,8 +297,8 @@ RSpec.describe IdempotentRequest, type: :model do
     end
   end
 
-  describe  '#completed?' do
-    subject { idempotency_key.completed? }
+  describe  '#response_available?' do
+    subject { idempotency_key.response_available? }
 
     let!(:idempotency_key) { create(:idempotent_request) }
     let(:response_body) { '' }
