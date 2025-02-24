@@ -12,7 +12,7 @@ class IdempotentRequest < ApplicationRecord
   EXPIRES_IN = 24.hours #: ActiveSupport::Duration
 
   validates :key, presence: true, uuid: { version: 4 }
-  validate :validate_key_uniqueness_in_alive_with_same_request, on: :create
+  validate :validate_unique_alive_key, on: :create
 
   validates :request_method, presence: true, length: { maximum: 10 }
   validates :request_path, presence: true, length: { maximum: 255 }
@@ -97,7 +97,7 @@ class IdempotentRequest < ApplicationRecord
   end
 
   # @rbs () -> void
-  def validate_key_uniqueness_in_alive_with_same_request
+  def validate_unique_alive_key
     # 過去 24 時間以内に作成 / 更新されている場合は、同じ key / method / path のリクエストを新規に受け付けない
     # 2025.02.24 に実行計画を見た感じでは index_idempotency_keys_on_request_unique_identifier が効いていそう
     condition = self.class.where(key: key, request_method: request_method, request_path: request_path).alive
