@@ -41,6 +41,15 @@ class IdempotencyKey < ApplicationRecord
     end
   end
 
+  # @rbs (body: String, status: Integer, headers: Hash) -> void
+  def complete_with_response!(body:, status:, headers: {})
+    update!(
+      response_body: body,
+      response_code: status,
+      response_headers: headers
+    )
+  end
+
   # Idempotency-Key に対応するリクエストが処理途中の場合のみ true を返す
   # @rbs () -> bool
   def locked?

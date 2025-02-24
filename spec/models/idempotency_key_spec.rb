@@ -166,6 +166,45 @@ RSpec.describe IdempotencyKey, type: :model do
     end
   end
 
+  describe '#complete_with_response!' do
+    let!(:idempotency_key) { create(:idempotency_key) }
+    let(:body) { 'result' }
+    let(:status) { 200 }
+    let(:headers) { { 'Content-Type' => 'application/json' } }
+
+    context 'response_body, response_code, response_headers を指定した場合' do
+      subject(:complete_request) do
+        idempotency_key.complete_with_response!(body: body, status: status, headers: headers)
+      end
+
+      it 'レスポンスのデータが更新されること' do
+        complete_request
+
+        aggregate_failures do
+          expect(idempotency_key.response_body).to eq body
+          expect(idempotency_key.response_code).to eq status
+          expect(idempotency_key.response_headers).to eq headers
+        end
+      end
+    end
+
+    context 'response_headers を指定しない場合' do
+      subject(:complete_request) do
+        idempotency_key.complete_with_response!(body: body, status: status)
+      end
+
+      it 'headers は空のハッシュとして記録されること' do
+        complete_request
+
+        aggregate_failures do
+          expect(idempotency_key.response_body).to eq body
+          expect(idempotency_key.response_code).to eq status
+          expect(idempotency_key.response_headers).to eq({})
+        end
+      end
+    end
+  end
+
   describe '#request_match?' do
     subject do
       idempotency_key.request_match?(method: request_method, path: request_path, params: request_params.to_unsafe_h)
