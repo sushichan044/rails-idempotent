@@ -11,8 +11,8 @@ module IdempotentRequest
     # @rbs path: String
     # @rbs params: ActiveSupport::HashWithIndifferentAccess
     # @rbs &block: (IdempotencyKey) -> void
-    # @rbs return: { body: String, status: Integer, headers: Hash }
-    def with_idempotent_request!(key:, method:, path:, params:, &block) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # @rbs return: ResponseObject
+    def with_idempotent_request!(key:, method:, path:, params:, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       raise IdempotentRequest::IdempotencyError::InvalidKey unless valid_key?(key)
 
       alive_key = IdempotencyKey.find_alive_by_request(idempotency_key: key, method: method, path: path)
@@ -23,12 +23,8 @@ module IdempotentRequest
       raise IdempotentRequest::IdempotencyError::KeyLocked if alive_key&.locked?
 
       if alive_key&.completed?
-        Rails.logger.info("Request with Idempotency-Key #{key} is already completed. Returning the cached response.")
-        return {
-          body: alive_key.response_body,
-          status: alive_key.response_code,
-          headers: alive_key.response_headers
-        }
+        return ResponseObject.new(body: alive_key.response_body, status: alive_key.response_code,
+                                  headers: alive_key.response_headers)
       end
 
       # このとき、一度リクエストを処理しようとしたが失敗して response を保存できていない場合は
@@ -42,7 +38,8 @@ module IdempotentRequest
       alive_key.with_idempotent_lock!(&block)
       raise 'Response was not set in with_idempotent_lock!' unless alive_key.completed?
 
-      { body: alive_key.response_body, status: alive_key.response_code, headers: alive_key.response_headers }
+      ResponseObject.new(body: alive_key.response_body, status: alive_key.response_code,
+                         headers: alive_key.response_headers)
     end
   end
 
@@ -54,6 +51,12 @@ module IdempotentRequest
     # 409 Conflict
     class KeyLocked < StandardError; end
   end
+
+  ResponseObject = Data.define(
+    :body, #: String
+    :status, #: Integer
+    :headers #: Hash[String | Symbol, String]
+  )
 
   private
 
