@@ -99,7 +99,9 @@ class IdempotencyKey < ApplicationRecord
   # @rbs () -> void
   def validate_key_uniqueness_in_alive_with_same_request
     # 過去 24 時間以内に作成 / 更新されている場合は、同じ key / method / path のリクエストを新規に受け付けない
-    return unless self.class.where(key: key, request_method: request_method, request_path: request_path).alive.exists?
+    # 2025.02.24 に実行計画を見た感じでは index_idempotency_keys_on_request_unique_identifier が効いていそう
+    condition = self.class.where(key: key, request_method: request_method, request_path: request_path).alive
+    return unless condition.exists?
 
     errors.add(:key, 'must be unique in alive and not completed')
   end
