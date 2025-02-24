@@ -42,7 +42,7 @@ class IdempotentRequest < ApplicationRecord
   end
 
   # @rbs (body: String, status: Integer, headers: Hash) -> void
-  def complete_with_response!(body:, status:, headers: {})
+  def set_response!(body:, status:, headers: {})
     update!(
       response_body: body,
       response_code: status,

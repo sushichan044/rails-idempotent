@@ -15,7 +15,7 @@ class UsersController < ApplicationController
         params: params.to_unsafe_h
       ) do |req|
         user.save!
-        req.complete_with_response!(body: user.to_json, status: 201)
+        req.set_response!(body: user.to_json, status: 201)
       end
     rescue IdempotencyHelpers::Errors::InvalidKey
       render json: { data: nil, error: 'Idempotency-Key is invalid' }, status: :bad_request

@@ -13,7 +13,7 @@ RSpec.describe 'IdempotencyHelpers', type: :request do
             key: header_key, method: request.request_method, path: request.path, params: params.to_unsafe_h
           ) do |key|
             user = User.create!(name: user_params)
-            key.complete_with_response!(body: user.to_json, status: 201)
+            key.set_response!(body: user.to_json, status: 201)
           end
           render json: JSON.parse(response.body), status: response.status, headers: response.headers
         end

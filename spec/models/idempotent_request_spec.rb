@@ -204,7 +204,7 @@ RSpec.describe IdempotentRequest, type: :model do
     end
   end
 
-  describe '#complete_with_response!' do
+  describe '#set_response!' do
     let!(:idempotency_key) { create(:idempotent_request) }
     let(:body) { 'result' }
     let(:status) { 200 }
@@ -212,7 +212,7 @@ RSpec.describe IdempotentRequest, type: :model do
 
     context 'response_body, response_code, response_headers を指定した場合' do
       subject(:complete_request) do
-        idempotency_key.complete_with_response!(body: body, status: status, headers: headers)
+        idempotency_key.set_response!(body: body, status: status, headers: headers)
       end
 
       it 'レスポンスのデータが更新されること' do
@@ -228,7 +228,7 @@ RSpec.describe IdempotentRequest, type: :model do
 
     context 'response_headers を指定しない場合' do
       subject(:complete_request) do
-        idempotency_key.complete_with_response!(body: body, status: status)
+        idempotency_key.set_response!(body: body, status: status)
       end
 
       it 'headers は空のハッシュとして記録されること' do
