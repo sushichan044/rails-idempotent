@@ -15,16 +15,12 @@ class UsersController < ApplicationController
         params: params.to_unsafe_h
       ) do |key|
         user.save!
-        key.update!(
-          response_body: user.as_json.to_json,
-          response_code: 201
-        )
+        key.update!(response_body: user.to_json, response_code: 201)
       end
     rescue IdempotencyError::InvalidKey
       render json: { data: nil, error: 'Idempotency-Key is invalid' }, status: :bad_request
       return
     rescue IdempotencyError::RequestMismatch
-      Rails.logger.info('Request mismatch')
       render json: { data: nil, error: 'Idempotency-Key is already used' }, status: :unprocessable_content
       return
     rescue IdempotencyError::KeyLocked
