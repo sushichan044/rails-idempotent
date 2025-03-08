@@ -5,7 +5,7 @@
 class UsersController < ApplicationController
   include IdempotencyHelpers
 
-  def create # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  def create
     user = User.new(user_params)
     render json: {data: nil, error: user.errors}, status: :unprocessable_content and return unless user.valid?
 

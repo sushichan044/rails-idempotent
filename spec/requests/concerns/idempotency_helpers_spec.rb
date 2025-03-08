@@ -6,7 +6,7 @@ RSpec.describe "IdempotencyHelpers", type: :request do
       stub_const("MockController", Class.new(ApplicationController) do
         include IdempotencyHelpers
 
-        def create # rubocop:disable Metrics/AbcSize
+        def create
           header_key = request.headers["HTTP_IDEMPOTENCY_KEY"]
 
           response = ensure_request_idempotency!(
@@ -112,7 +112,7 @@ RSpec.describe "IdempotencyHelpers", type: :request do
         {body: response.body, status: response.status}
       end
 
-      context "リクエストパラメータが一致する場合" do # rubocop:disable RSpec/NestedGroups
+      context "リクエストパラメータが一致する場合" do
         it "既存のレスポンスを返す" do
           aggregate_failures do
             expect { second_response }.not_to change(IdempotentRequest, :count)
@@ -122,7 +122,7 @@ RSpec.describe "IdempotencyHelpers", type: :request do
         end
       end
 
-      context "リクエストパラメータが一致しない場合" do # rubocop:disable RSpec/NestedGroups
+      context "リクエストパラメータが一致しない場合" do
         let(:request_params) { {user: {name: "INVALID"}} }
 
         it "IdempotencyError::RequestMismatch が発生する" do
@@ -130,7 +130,7 @@ RSpec.describe "IdempotencyHelpers", type: :request do
         end
       end
 
-      context "前のリクエストが処理中の場合" do # rubocop:disable RSpec/NestedGroups
+      context "前のリクエストが処理中の場合" do
         before do
           # 擬似的に処理中の状態を作る
           IdempotentRequest.find_by(key: idempotency_key_header)
@@ -149,7 +149,7 @@ RSpec.describe "IdempotencyHelpers", type: :request do
       stub_const("MockController", Class.new(ApplicationController) do
         include IdempotencyHelpers
 
-        def create # rubocop:disable Metrics/AbcSize
+        def create
           header_key = request.headers["HTTP_IDEMPOTENCY_KEY"]
 
           response = ensure_request_idempotency!(
