@@ -25,7 +25,7 @@ module IdempotencyHelpers
 
         if request.response_available?
           return ResponseObject.new(body: request.response_body, status: request.response_code,
-                                    headers: request.response_headers)
+            headers: request.response_headers)
         end
       end
 
@@ -53,7 +53,7 @@ module IdempotencyHelpers
 
         if preceding.response_available?
           return ResponseObject.new(body: preceding.response_body, status: preceding.response_code,
-                                    headers: preceding.response_headers)
+            headers: preceding.response_headers)
         end
 
         raise IdempotencyHelpers::Errors::RaceConditionDetected
@@ -63,15 +63,17 @@ module IdempotencyHelpers
       raise IdempotencyHelpers::Errors::ResponseNotSet unless request.response_available?
 
       ResponseObject.new(body: request.response_body, status: request.response_code,
-                         headers: request.response_headers)
+        headers: request.response_headers)
     end
   end
 
   module Errors
     # 400 Bad Request
     class InvalidKey < StandardError; end
+
     # 422 Unprocessable Content
     class RequestMismatch < StandardError; end
+
     # 409 Conflict
     class KeyLocked < StandardError; end
 
@@ -87,9 +89,9 @@ module IdempotencyHelpers
   end
 
   ResponseObject = Data.define(
-    :body, #: String
-    :status, #: Integer
-    :headers #: Hash[String | Symbol, String]
+    :body, # : String
+    :status, # : Integer
+    :headers # : Hash[String | Symbol, String]
   )
 
   private
