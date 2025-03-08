@@ -72,6 +72,6 @@ group :test do
 end
 
 group :rubocop, :test do
-  gem "standard"
+  gem "standard", ">= 1.35.1"
   gem "standard-rails"
 end
