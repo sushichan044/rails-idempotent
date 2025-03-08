@@ -57,7 +57,7 @@ group :development, :test do
 end
 
 group :development do
-  gem 'rbs-inline', '~> 0.10.0', require: false
+  gem 'rbs-inline', '~> 0.11.0', require: false
   gem 'rbs_rails', require: false
   gem 'ruby-lsp-rspec', require: false
   gem 'steep', require: false
