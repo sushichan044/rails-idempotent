@@ -47,17 +47,6 @@ jobs:
       checks: write
       contents: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          persist-credentials: false
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@277ba2a127aba66d45bad0fa2dc56f80dbfedffa # v1.222.0
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
       - name: Run standard
         uses: standardrb/standard-ruby-action@44aa4aecb87194c543e768b2329be931a55937be # v1.4.0
 
