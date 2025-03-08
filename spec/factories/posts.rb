@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :post do
-    title { 'My first post' }
-    content { 'This is my first post' }
+    title { "My first post" }
+    content { "This is my first post" }
   end
 end

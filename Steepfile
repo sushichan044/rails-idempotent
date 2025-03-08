@@ -3,12 +3,12 @@
 D = Steep::Diagnostic
 
 target :lib do
-  signature 'sig'
-  ignore_signature 'sig/test'
+  signature "sig"
+  ignore_signature "sig/test"
 
-  check 'lib' # Directory name
-  check 'app/models/**/*.rb' # Glob
-  check 'app/controllers/**/*.rb' # Glob
+  check "lib" # Directory name
+  check "app/models/**/*.rb" # Glob
+  check "app/controllers/**/*.rb" # Glob
   # ignore "lib/templates/*.rb"
 
   # library "pathname"              # Standard libraries
@@ -25,8 +25,8 @@ end
 
 target :test do
   unreferenced!                     # Skip type checking the `lib` code when types in `test` target is changed
-  signature 'sig/test'              # Put RBS files for tests under `sig/test`
-  check 'test'                      # Type check Ruby scripts under `test`
+  signature "sig/test"              # Put RBS files for tests under `sig/test`
+  check "test"                      # Type check Ruby scripts under `test`
 
   configure_code_diagnostics(D::Ruby.lenient) # Weak type checking for test code
 

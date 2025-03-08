@@ -5,17 +5,18 @@
 class IdempotentRequest < ApplicationRecord
   module Error
     class AlreadyLocked < StandardError; end
+
     class NotLocked < StandardError; end
   end
 
   # 24時間ちょうどまでは保存されたレスポンスが有効。1 秒でも過ぎたら無効
-  EXPIRES_IN = 24.hours #: ActiveSupport::Duration
+  EXPIRES_IN = 24.hours # : ActiveSupport::Duration
 
-  validates :key, presence: true, uuid: { version: 4 }
+  validates :key, presence: true, uuid: {version: 4}
   validate :validate_unique_alive_key, on: :create
 
-  validates :request_method, presence: true, length: { maximum: 10 }
-  validates :request_path, presence: true, length: { maximum: 255 }
+  validates :request_method, presence: true, length: {maximum: 10}
+  validates :request_path, presence: true, length: {maximum: 255}
   validates :request_params, presence: true
 
   scope :alive, -> { where(updated_at: EXPIRES_IN.ago..) }
@@ -103,6 +104,6 @@ class IdempotentRequest < ApplicationRecord
     condition = self.class.where(key: key, request_method: request_method, request_path: request_path).alive
     return unless condition.exists?
 
-    errors.add(:key, 'must be unique in alive and not completed')
+    errors.add(:key, "must be unique in alive and not completed")
   end
 end

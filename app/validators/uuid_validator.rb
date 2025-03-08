@@ -9,7 +9,7 @@ class UuidValidator < ActiveModel::EachValidator
     begin
       uuid = UUIDTools::UUID.parse(value)
     rescue ArgumentError, TypeError
-      record.errors.add(attribute, options[:message] || 'is not a valid UUID')
+      record.errors.add(attribute, options[:message] || "is not a valid UUID")
       return
     end
 
