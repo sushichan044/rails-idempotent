@@ -39,11 +39,12 @@ jobs:
       - name: Scan for common Rails security vulnerabilities using static analysis
         run: bin/brakeman --no-pager
 
-  rubocop:
-    name: rubocop
+  standard:
+    name: Run standard rb
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:
+      checks: write
       contents: read
     steps:
       - name: Checkout code
@@ -57,8 +58,8 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Run rubocop
-        run: bundle exec rubocop -f github
+      - name: Run standard
+        uses: standardrb/standard-ruby-action@44aa4aecb87194c543e768b2329be931a55937be # v1.4.0
 
   rspec:
     runs-on: ubuntu-24.04
