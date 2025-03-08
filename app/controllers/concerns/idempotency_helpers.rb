@@ -5,14 +5,14 @@
 module IdempotencyHelpers
   extend ActiveSupport::Concern
 
-  included do
+  included do # rubocop:disable Metrics/BlockLength
     # @rbs key: String? -- Header value of Idempotency-Key. Must be a UUIDv4. Nil is allowed for utility.
     # @rbs method: String
     # @rbs path: String
     # @rbs params: ActiveSupport::HashWithIndifferentAccess
     # @rbs &block: (IdempotentRequest) -> void
     # @rbs return: ResponseObject
-    def ensure_request_idempotency!(key:, method:, path:, params:, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
+    def ensure_request_idempotency!(key:, method:, path:, params:, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
       raise IdempotencyHelpers::Errors::InvalidKey unless valid_key?(key)
 
       request = IdempotentRequest.find_alive_by_request(idempotency_key: key, method: method, path: path)
