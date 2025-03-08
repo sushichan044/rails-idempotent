@@ -36,7 +36,7 @@ class UsersController < ApplicationController
       return
     end
 
-    render json: {data: JSON.parse(response.body), error: nil}, status: response.status, headers: response.headers
+    render json: {data: response.body, error: nil}, status: response.status, headers: response.headers
   end
 
   def show
