@@ -94,8 +94,8 @@ RSpec.describe 'IdempotencyHelpers', type: :request do
         travel_to((24.hours + 1.second).from_now)
       end
 
-      it '新しいリクエストとして処理される' do
-        expect { first_request }.to change(IdempotentRequest, :count).from(1).to(2)
+      it '運悪く期限切れの Key のぶつかったというエラーを返す' do
+        expect { first_request }.to raise_error(IdempotencyHelpers::Errors::KeyIsStale)
       end
     end
 

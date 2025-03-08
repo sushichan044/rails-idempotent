@@ -26,6 +26,14 @@ class UsersController < ApplicationController
     rescue IdempotencyHelpers::Errors::KeyLocked
       render json: { data: nil, error: 'A request is outstanding for this Idempotency-Key' }, status: :conflict
       return
+    rescue IdempotencyHelpers::Errors::RaceConditionDetected
+      render json: { data: nil, error: 'Race condition detected. Please retry with different Idempotency-Key' },
+             status: :conflict
+      return
+    rescue IdempotencyHelpers::Errors::KeyIsStale
+      render json: { data: nil, error: 'Idempotency-Key is stale. Please retry with different Idempotency-Key' },
+             status: :bad_request
+      return
     end
 
     render json: { data: JSON.parse(response.body), error: nil }, status: response.status, headers: response.headers
