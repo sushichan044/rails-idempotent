@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_24_153131) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_08_065613) do
   create_table "idempotent_requests", force: :cascade do |t|
     t.string "key", null: false
     t.datetime "created_at", null: false
@@ -22,7 +22,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_24_153131) do
     t.integer "response_code", default: 0, null: false
     t.string "response_body", default: "", null: false
     t.json "response_headers", default: {}, null: false
-    t.index ["key", "request_path", "request_method"], name: "index_idempotency_keys_on_request_unique_identifier"
+    t.index ["key"], name: "index_idempotent_requests_on_key", unique: true
   end
 
   create_table "posts", force: :cascade do |t|
