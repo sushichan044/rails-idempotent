@@ -423,7 +423,7 @@ GEM
     unicode-display_width (2.6.0)
     uri (1.0.3)
     useragent (0.16.11)
-    uuidtools (2.2.0)
+    uuidtools (3.0.0)
     web-console (4.2.1)
       actionview (>= 6.0.0)
       activemodel (>= 6.0.0)
@@ -479,7 +479,7 @@ DEPENDENCIES
   thruster
   turbo-rails
   tzinfo-data
-  uuidtools (~> 2.2)
+  uuidtools (~> 3.0)
   web-console
 
 BUNDLED WITH
